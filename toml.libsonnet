@@ -82,14 +82,10 @@ local header =
   );
 
 local table =
-  p.andThen(
+  p.map2(
+    function(headerStr, assignments) { [headerStr]: mergeObjects(assignments) },
     header,
-    function(headerStr)
-      p.andThen(
-        p.oneOrMore(assignment),
-        function(assignments)
-          p.succeed({ [headerStr]: mergeObjects(assignments) })
-      )
+    p.oneOrMore(assignment),
   );
 
 local emptyline =

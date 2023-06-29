@@ -2,7 +2,7 @@ local toml = import './toml.libsonnet';
 
 local input = |||
   foo = 1
-  bar = 2
+  bar = "hello"
 
   [section]
   boo = 3

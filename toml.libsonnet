@@ -10,7 +10,10 @@ local key =
   p.word;
 
 local value =
-  p.int;
+  p.anyOf([
+    p.int,
+    p.doubleQuotedString,
+  ]);
 
 local optionalNewline =
   p.optional(p.newline);

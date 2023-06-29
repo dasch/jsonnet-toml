@@ -47,6 +47,13 @@ local char(c) = function(state)
   else
     noMatch;
 
+local notChar(c) = function(state)
+  local nextChar = peek(state);
+  if nextChar != c then
+    match { newState: advance(state, 1), value: nextChar }
+  else
+    noMatch;
+
 local either(decoder1, decoder2) = function(state)
   local result1 = run(decoder1, state);
 
@@ -147,7 +154,7 @@ local intChars =
 local numeral =
   anyOf(intChars);
 
-local numerals = zeroOrMore(numeral);
+local numerals = oneOrMore(numeral);
 
 local int =
   map(std.parseInt, toString(numerals));
@@ -193,6 +200,9 @@ local underscore =
 local newline =
   char('\n');
 
+local doubleQuote =
+  char('"');
+
 local wordChars =
   intChars + letterChars + [underscore];
 
@@ -201,6 +211,14 @@ local wordChar =
 
 local word =
   toString(map2(concat, either(letter, underscore), zeroOrMore(wordChar)));
+
+local doubleQuotedString =
+  map3(
+    function(_1, str, _2) str,
+    doubleQuote,
+    toString(zeroOrMore(notChar('"'))),
+    doubleQuote
+  );
 
 {
   parse: parse,
@@ -224,6 +242,7 @@ local word =
   newline: newline,
   whitespace: whitespace,
   whitespaceChar: whitespaceChar,
+  doubleQuotedString: doubleQuotedString,
   numeral: numeral,
   int: int,
 }

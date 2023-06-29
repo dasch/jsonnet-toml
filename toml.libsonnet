@@ -20,14 +20,17 @@ local value =
   local array =
     p.surroundedBy(
       p.char('['),
-      p.separatedBy(surroundedByWhitespace(p.char(',')), value),
+      p.separatedBy(p.char(','), value),
       p.char(']')
     );
-  p.anyOf([
-    p.int,
-    p.doubleQuotedString,
-    array,
-  ]);
+
+  surroundedByWhitespace(
+    p.anyOf([
+      p.int,
+      p.doubleQuotedString,
+      array,
+    ])
+  );
 
 local optionalNewline =
   p.optional(p.newline);

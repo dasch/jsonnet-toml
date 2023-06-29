@@ -14,6 +14,12 @@ local x = parser.char('x');
       parser.parse(decoder)('42') == 42,
   },
 
+  whitespace: {
+    'it parses whitespace':
+      local decoder = parser.whitespace;
+      parser.parse(decoder)(' \t \n') == ' \t \n',
+  },
+
   succeed: {
     'it evaluates to the provided value':
       parser.parse(parser.succeed(42))('') == 42,

@@ -97,6 +97,15 @@ local zeroOrMore(decoder) =
 local oneOrMore(decoder) =
   map2(concat, decoder, zeroOrMore(decoder));
 
+local toString(decoder) =
+  map(function(value) std.join('', value), decoder);
+
+local whitespaceChar =
+  anyOf(std.map(char, [' ', '\n', '\t', '\r']));
+
+local whitespace =
+  toString(oneOrMore(whitespaceChar));
+
 local intChars =
   std.map(char, std.map(std.toString, std.range(0, 9)));
 
@@ -106,7 +115,7 @@ local numeral =
 local numerals = zeroOrMore(numeral);
 
 local int =
-  map(std.parseInt, map(function(value) std.join('', value), numerals));
+  map(std.parseInt, toString(numerals));
 
 {
   parse: parse,
@@ -116,5 +125,8 @@ local int =
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
   char: char,
+  whitespace: whitespace,
+  whitespaceChar: whitespaceChar,
+  numeral: numeral,
   int: int,
 }

@@ -139,6 +139,14 @@ local followedBy(decoder1, ignoredDecoder) =
       )
   );
 
+local surroundedBy(start, middle, end) =
+  map3(
+    function(_1, value, _2) value,
+    start,
+    middle,
+    end
+  );
+
 local separatedBy(separatorDecoder, elementDecoder) =
   local restDecoder =
     andThen(
@@ -247,6 +255,7 @@ local doubleQuotedString =
   map3: map3,
   followedBy: followedBy,
   separatedBy: separatedBy,
+  surroundedBy: surroundedBy,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
   optional: optional,

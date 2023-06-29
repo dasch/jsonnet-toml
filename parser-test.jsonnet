@@ -118,6 +118,17 @@ local x = parser.char('x');
       value == 42,
   },
 
+  surroundedBy: {
+    'matches input that starts and ends with those decoders respectively':
+      local decoder = parser.surroundedBy(
+        parser.char('{'),
+        parser.int,
+        parser.char('}'),
+      );
+      local value = parser.parse(decoder)('{42}');
+      value == 42,
+  },
+
   separatedBy: {
     'matches zero or more elements separated by the separator':
       local separator = parser.char(',');

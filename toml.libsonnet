@@ -10,8 +10,7 @@ local key =
   p.word;
 
 local surroundedByWhitespace(decoder) =
-  p.map3(
-    function(_1, value, _2) value,
+  p.surroundedBy(
     p.optional(p.whitespace),
     decoder,
     p.optional(p.whitespace),
@@ -19,8 +18,7 @@ local surroundedByWhitespace(decoder) =
 
 local value =
   local array =
-    p.map3(
-      function(_1, elements, _2) elements,
+    p.surroundedBy(
       p.char('['),
       p.separatedBy(surroundedByWhitespace(p.char(',')), value),
       p.char(']')

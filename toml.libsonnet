@@ -6,31 +6,51 @@ local key =
 local value =
   p.int;
 
+local optionalNewline =
+  p.optional(p.newline);
+
 local assignment =
+  p.followedBy(
+    p.andThen(
+      key,
+      function(keyStr)
+        p.andThen(
+          p.seq([p.whitespace, p.char('='), p.whitespace]),
+          function(_)
+            p.andThen(
+              value,
+              function(valueStr)
+                p.succeed({ key: keyStr, value: valueStr })
+            )
+        )
+    ),
+    optionalNewline
+  );
+
+local header =
+  p.followedBy(
+    p.map3(
+      function(_1, keyStr, _2) keyStr,
+      p.char('['),
+      key,
+      p.char(']'),
+    ),
+    optionalNewline
+  );
+
+local table =
   p.andThen(
-    key,
-    function(keyStr)
+    header,
+    function(headerStr)
       p.andThen(
-        p.seq([p.whitespace, p.char('='), p.whitespace]),
-        function(_)
-          p.andThen(
-            value,
-            function(valueStr)
-              p.succeed({ key: keyStr, value: valueStr })
-          )
+        p.oneOrMore(assignment),
+        function(assignments)
+          p.succeed({ [headerStr]: assignments })
       )
   );
 
 local expression =
-  p.andThen(
-    assignment,
-    function(assignmentValue)
-      p.andThen(
-        p.optional(p.newline),
-        function(_)
-          p.succeed(assignmentValue)
-      )
-  );
+  assignment;
 
 local toml =
   p.oneOrMore(expression);

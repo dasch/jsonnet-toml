@@ -94,6 +94,21 @@ local map2(f, decoder1, decoder2) =
       )
   );
 
+local map3(f, decoder1, decoder2, decoder3) =
+  andThen(
+    decoder1,
+    function(value1)
+      andThen(
+        decoder2,
+        function(value2)
+          andThen(
+            decoder3,
+            function(value3)
+              succeed(f(value1, value2, value3))
+          )
+      )
+  );
+
 local zeroOrMore(decoder) =
   either(map2(concat, decoder, zeroOrMore(decoder)), succeed([]));
 
@@ -105,6 +120,16 @@ local seq(decoders) =
     succeed([])
   else
     map2(concat, decoders[0], seq(decoders[1:]));
+
+local followedBy(decoder1, ignoredDecoder) =
+  andThen(
+    decoder1,
+    function(value)
+      andThen(
+        ignoredDecoder,
+        succeed(value)
+      )
+  );
 
 local toString(decoder) =
   map(function(value) std.join('', value), decoder);
@@ -181,9 +206,13 @@ local word =
   succeed: succeed,
   fail: fail,
   either: either,
+  anyOf: anyOf,
   andThen: andThen,
   seq: seq,
   map: map,
+  map2: map2,
+  map3: map3,
+  followedBy: followedBy,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
   optional: optional,

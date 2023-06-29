@@ -94,4 +94,27 @@ local x = parser.char('x');
       local value = parser.parse(decoder)('xxx');
       value == ['x', 'x', 'x'],
   },
+
+  seq: {
+    'it matches an array of decoders in order':
+      local decoder = parser.seq([
+        parser.char('x'),
+        parser.char('y'),
+        parser.char('z'),
+      ]);
+      local value = parser.parse(decoder)('xyz');
+      value == ['x', 'y', 'z'],
+
+    'does not match if any decoder fails to match':
+      local decoder = parser.either(
+        parser.seq([
+          parser.char('x'),
+          parser.char('y'),
+          parser.char('z'),
+        ]),
+        parser.succeed(42)
+      );
+      local value = parser.parse(decoder)('xyG');
+      value == 42,
+  },
 }

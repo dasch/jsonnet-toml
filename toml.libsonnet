@@ -11,20 +11,12 @@ local assignment =
     key,
     function(keyStr)
       p.andThen(
-        p.whitespace,
+        p.seq([p.whitespace, p.char('='), p.whitespace]),
         function(_)
           p.andThen(
-            p.char('='),
-            function(_)
-              p.andThen(
-                p.whitespace,
-                function(_)
-                  p.andThen(
-                    value,
-                    function(valueStr)
-                      p.succeed({ key: keyStr, value: valueStr })
-                  )
-              )
+            value,
+            function(valueStr)
+              p.succeed({ key: keyStr, value: valueStr })
           )
       )
   );

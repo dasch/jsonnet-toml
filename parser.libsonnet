@@ -100,6 +100,12 @@ local zeroOrMore(decoder) =
 local oneOrMore(decoder) =
   map2(concat, decoder, zeroOrMore(decoder));
 
+local seq(decoders) =
+  if decoders == [] then
+    succeed([])
+  else
+    map2(concat, decoders[0], seq(decoders[1:]));
+
 local toString(decoder) =
   map(function(value) std.join('', value), decoder);
 
@@ -176,6 +182,7 @@ local word =
   fail: fail,
   either: either,
   andThen: andThen,
+  seq: seq,
   map: map,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,

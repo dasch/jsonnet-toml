@@ -117,4 +117,12 @@ local x = parser.char('x');
       local value = parser.parse(decoder)('xyG');
       value == 42,
   },
+
+  separatedBy: {
+    'matches zero or more elements separated by the separator':
+      local separator = parser.char(',');
+      local decoder = parser.separatedBy(separator, parser.int);
+      local value = parser.parse(decoder)('1,2,3');
+      value == [1, 2, 3],
+  },
 }

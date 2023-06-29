@@ -9,10 +9,26 @@ local mergeObjects(objects) =
 local key =
   p.word;
 
+local surroundedByWhitespace(decoder) =
+  p.map3(
+    function(_1, value, _2) value,
+    p.optional(p.whitespace),
+    decoder,
+    p.optional(p.whitespace),
+  );
+
 local value =
+  local array =
+    p.map3(
+      function(_1, elements, _2) elements,
+      p.char('['),
+      p.separatedBy(surroundedByWhitespace(p.char(',')), value),
+      p.char(']')
+    );
   p.anyOf([
     p.int,
     p.doubleQuotedString,
+    array,
   ]);
 
 local optionalNewline =
@@ -24,7 +40,7 @@ local assignment =
       key,
       function(keyStr)
         p.andThen(
-          p.seq([p.whitespace, p.char('='), p.whitespace]),
+          surroundedByWhitespace(p.char('=')),
           function(_)
             p.andThen(
               value,

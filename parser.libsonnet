@@ -139,6 +139,20 @@ local followedBy(decoder1, ignoredDecoder) =
       )
   );
 
+local separatedBy(separatorDecoder, elementDecoder) =
+  local restDecoder =
+    andThen(
+      separatorDecoder,
+      function(_)
+        separatedBy(separatorDecoder, elementDecoder)
+    );
+
+  anyOf([
+    map2(concat, elementDecoder, restDecoder),
+    map(function(element) [element], elementDecoder),
+    succeed([]),
+  ]);
+
 local toString(decoder) =
   map(function(value) std.join('', value), decoder);
 
@@ -232,6 +246,7 @@ local doubleQuotedString =
   map2: map2,
   map3: map3,
   followedBy: followedBy,
+  separatedBy: separatedBy,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
   optional: optional,

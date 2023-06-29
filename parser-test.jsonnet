@@ -9,7 +9,9 @@ local x = parser.char('x');
   },
 
   int: {
-    //'it parses integers': parser.parse(parser.int('42'))('42') == '42',
+    'it parses integers':
+      local decoder = parser.int;
+      parser.parse(decoder)('42') == 42,
   },
 
   succeed: {

@@ -55,14 +55,11 @@ local either(decoder1, decoder2) = function(state)
   else
     run(decoder2, state);
 
-local anyOf(decoders) = function(state)
-  local results = std.map(function(decoder) run(decoder, state), decoders);
-  local matchingResults = std.filter(didMatch, results);
-
-  if std.length(matchingResults) == 0 then
+local anyOf(decoders) =
+  if std.length(decoders) == 0 then
     fail
   else
-    matchingResults[0];
+    either(decoders[0], anyOf(decoders[1:]));
 
 // Runs the decoder and feeds the matched value to `nextF`, which needs
 // to itself evaluate to a decoder.
@@ -100,9 +97,10 @@ local zeroOrMore(decoder) =
 local oneOrMore(decoder) =
   map2(concat, decoder, zeroOrMore(decoder));
 
-local numeral(state) =
-  local intChars =
-    std.map(char, ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+local intChars =
+  std.map(char, std.map(std.toString, std.range(0, 9)));
+
+local numeral =
   anyOf(intChars);
 
 local numerals = zeroOrMore(numeral);

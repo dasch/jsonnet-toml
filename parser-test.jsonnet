@@ -1,7 +1,6 @@
 local parser = import './parser.libsonnet';
 
-local pipeline(items) =
-  std.foldl(function(last, this) this(last), items[1:], items[0]);
+local x = parser.char('x');
 
 {
   char: {
@@ -31,17 +30,37 @@ local pipeline(items) =
 
   zeroOrMore: {
     'it matches zero matches of the decoder':
-      local decoder = parser.zeroOrMore(parser.char('x'));
+      local decoder = parser.zeroOrMore(x);
       local value = parser.parse(decoder)('');
       value == [],
 
     'it matches one match of the decoder':
-      local decoder = parser.zeroOrMore(parser.char('x'));
+      local decoder = parser.zeroOrMore(x);
       local value = parser.parse(decoder)('x');
       value == ['x'],
 
     'it matches multiple matches of the decoder':
-      local decoder = parser.zeroOrMore(parser.char('x'));
+      local decoder = parser.zeroOrMore(x);
+      local value = parser.parse(decoder)('xxx');
+      value == ['x', 'x', 'x'],
+  },
+
+  oneOrMore: {
+    'it does not match zone occurrences of the decoder':
+      local decoder = parser.either(
+        parser.oneOrMore(x),
+        parser.succeed(42)
+      );
+      local value = parser.parse(decoder)('');
+      value == 42,
+
+    'it matches one occurrence of the decoder':
+      local decoder = parser.oneOrMore(x);
+      local value = parser.parse(decoder)('x');
+      value == ['x'],
+
+    'it matches multiple occurrences of the decoder':
+      local decoder = parser.oneOrMore(x);
       local value = parser.parse(decoder)('xxx');
       value == ['x', 'x', 'x'],
   },

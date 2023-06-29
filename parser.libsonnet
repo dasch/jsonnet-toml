@@ -97,6 +97,9 @@ local map2(f, decoder1, decoder2) =
 local zeroOrMore(decoder) =
   either(map2(concat, decoder, zeroOrMore(decoder)), succeed([]));
 
+local oneOrMore(decoder) =
+  map2(concat, decoder, zeroOrMore(decoder));
+
 local numeral(state) =
   local intChars =
     std.map(char, ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
@@ -110,8 +113,10 @@ local int =
 {
   parse: parse,
   succeed: succeed,
+  either: either,
   map: map,
   zeroOrMore: zeroOrMore,
+  oneOrMore: oneOrMore,
   char: char,
   int: int,
 }

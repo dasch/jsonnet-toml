@@ -127,7 +127,8 @@ local followedBy(decoder1, ignoredDecoder) =
     function(value)
       andThen(
         ignoredDecoder,
-        succeed(value)
+        function(_)
+          succeed(value)
       )
   );
 

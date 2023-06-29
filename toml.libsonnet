@@ -1,5 +1,11 @@
 local p = import './parser.libsonnet';
 
+local merge(a, b) =
+  a + b;
+
+local mergeObjects(objects) =
+  std.foldl(merge, objects, {});
+
 local key =
   p.word;
 
@@ -20,7 +26,7 @@ local assignment =
             p.andThen(
               value,
               function(valueStr)
-                p.succeed({ key: keyStr, value: valueStr })
+                p.succeed({ [keyStr]: valueStr })
             )
         )
     ),
@@ -45,15 +51,18 @@ local table =
       p.andThen(
         p.oneOrMore(assignment),
         function(assignments)
-          p.succeed({ [headerStr]: assignments })
+          p.succeed({ [headerStr]: mergeObjects(assignments) })
       )
   );
 
 local expression =
-  assignment;
+  p.anyOf([assignment, table]);
+
+local expressions =
+  p.map(mergeObjects, p.oneOrMore(expression));
 
 local toml =
-  p.oneOrMore(expression);
+  expressions;
 
 local parse =
   p.parse(toml);

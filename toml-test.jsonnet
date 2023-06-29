@@ -7,6 +7,7 @@ local input = |||
 
   [section]
   boo = 3
+  name = { first = "Joe", last = "Sixpack" }
 |||;
 
 

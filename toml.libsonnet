@@ -24,11 +24,28 @@ local value =
       p.char(']')
     );
 
+  local inlineTable =
+    local keyValue = p.map3(
+      function(key, _, value) { [key]: value },
+      surroundedByWhitespace(key),
+      surroundedByWhitespace(p.char('=')),
+      value
+    );
+    p.map(
+      mergeObjects,
+      p.surroundedBy(
+        p.char('{'),
+        p.separatedBy(p.char(','), keyValue),
+        p.char('}')
+      )
+    );
+
   surroundedByWhitespace(
     p.anyOf([
       p.int,
       p.doubleQuotedString,
       array,
+      inlineTable,
     ])
   );
 

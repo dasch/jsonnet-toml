@@ -20,9 +20,31 @@ local x = parser.char('x');
       parser.parse(decoder)(' \t \n') == ' \t \n',
   },
 
+  word: {
+    'it matches word characters':
+      local decoder = parser.word;
+      parser.parse(decoder)('hello') == 'hello',
+
+    'it does not match a starting numeral':
+      local decoder = parser.either(parser.word, parser.succeed(42));
+      parser.parse(decoder)('7hello') == 42,
+
+    'it matches trailing numerals':
+      local decoder = parser.word;
+      parser.parse(decoder)('hello7') == 'hello7',
+  },
+
   succeed: {
     'it evaluates to the provided value':
       parser.parse(parser.succeed(42))('') == 42,
+  },
+
+  optional: {
+    'it uses the value if the decoder matches':
+      parser.parse(parser.optional(parser.succeed(42)))('') == 42,
+
+    'it evaluates to null if it does not match':
+      parser.parse(parser.optional(parser.fail))('') == null,
   },
 
   map: {

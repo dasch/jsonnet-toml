@@ -55,6 +55,9 @@ local either(decoder1, decoder2) = function(state)
   else
     run(decoder2, state);
 
+local optional(decoder) =
+  either(decoder, succeed(null));
+
 local anyOf(decoders) =
   if std.length(decoders) == 0 then
     fail
@@ -117,14 +120,71 @@ local numerals = zeroOrMore(numeral);
 local int =
   map(std.parseInt, toString(numerals));
 
+local letterChars =
+  local chars = [
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f',
+    'g',
+    'h',
+    'i',
+    'j',
+    'k',
+    'l',
+    'm',
+    'n',
+    'o',
+    'p',
+    'q',
+    'r',
+    's',
+    't',
+    'u',
+    'v',
+    'w',
+    'x',
+    'y',
+    'z',
+  ];
+
+  std.map(char, chars + std.map(std.asciiUpper, chars));
+
+local letter =
+  anyOf(letterChars);
+
+local underscore =
+  char('_');
+
+local newline =
+  char('\n');
+
+local wordChars =
+  intChars + letterChars + [underscore];
+
+local wordChar =
+  anyOf(wordChars);
+
+local word =
+  toString(map2(concat, either(letter, underscore), zeroOrMore(wordChar)));
+
 {
   parse: parse,
   succeed: succeed,
+  fail: fail,
   either: either,
+  andThen: andThen,
   map: map,
   zeroOrMore: zeroOrMore,
   oneOrMore: oneOrMore,
+  optional: optional,
   char: char,
+  word: word,
+  letter: letter,
+  underscore: underscore,
+  newline: newline,
   whitespace: whitespace,
   whitespaceChar: whitespaceChar,
   numeral: numeral,

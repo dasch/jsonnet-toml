@@ -55,8 +55,11 @@ local table =
       )
   );
 
+local emptyline =
+  p.map(function(_) {}, p.newline);
+
 local expression =
-  p.anyOf([assignment, table]);
+  p.anyOf([assignment, table, emptyline]);
 
 local expressions =
   p.map(mergeObjects, p.oneOrMore(expression));

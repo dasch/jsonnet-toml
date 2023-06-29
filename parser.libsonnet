@@ -83,16 +83,16 @@ local map(f, decoder) = function(state)
   else
     noMatch;
 
-local map2(f, decoder1, decoder2) = function(state)
-  local result1 = run(decoder1, state);
-
-  if didMatch(result1) then
-    run(
-      map(function(value2) f(result1.value, value2), decoder2),
-      result1.newState
-    )
-  else
-    noMatch;
+local map2(f, decoder1, decoder2) =
+  andThen(
+    decoder1,
+    function(value1)
+      andThen(
+        decoder2,
+        function(value2)
+          succeed(f(value1, value2))
+      )
+  );
 
 local zeroOrMore(decoder) =
   either(map2(concat, decoder, zeroOrMore(decoder)), succeed([]));

@@ -208,8 +208,13 @@ local separatedBy(separatorDecoder, elementDecoder) = function(state)
 
   helper(state, []);
 
-local toString(decoder) =
-  map(function(value) std.join('', value), decoder);
+local toString(decoder) = function(state)
+  local result = run(decoder, state);
+
+  if didMatch(result) then
+    result { value: state.input[state.position:result.newState.position] }
+  else
+    result;
 
 local whitespaceChar =
   anyOf(std.map(char, [' ', '\t']));

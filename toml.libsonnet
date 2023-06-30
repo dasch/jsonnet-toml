@@ -22,7 +22,7 @@ local surroundedByWhitespace(decoder) =
 local keyPart =
   p.anyOf([
     p.doubleQuotedString,
-    p.map(function(parts) std.join('-', parts), p.separatedBy(dash, p.word)),
+    p.toString(p.separatedBy(dash, p.word)),
     p.word,
   ]);
 

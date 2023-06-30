@@ -49,11 +49,19 @@ local succeed(value) = function(state)
 local fail(state) =
   noMatch { position: state.position };
 
+local locatePosition(state) =
+  local prefix = state.input[0:state.position];
+  local lines = std.split(prefix, '\n');
+  local lineCount = std.length(lines);
+  'line %d' % lineCount;
+
 local eof(state) =
   if state.position == state.length then
     match { newState: state, value: null }
   else
-    noMatch { errorMessage: 'did not match end of input', position: state.position };
+    local char = state.input[state.position];
+    local location = locatePosition(state);
+    noMatch { errorMessage: 'unexpected character `%s` on %s' % [char, location], position: state.position };
 
 local char(c) = function(state)
   local nextChar = peek(state);

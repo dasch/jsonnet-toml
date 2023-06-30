@@ -23,7 +23,7 @@ local parse(decoder) = function(input)
   local result = run(decoder, state);
 
   if didMatch(result) then
-    if result.newState.position < std.length(state.input) then
+    if result.newState.position < state.length then
       std.trace('decoder is not exhaustive', result.value)
     else
       result.value
@@ -86,7 +86,7 @@ local optional(decoder) =
   either(decoder, succeed(null));
 
 local anyOf(decoders) = function(state)
-  if std.length(decoders) == 0 then
+  if decoders == [] then
     noMatch
   else
     // Doing this instead of recursion to avoid blowing the stack.

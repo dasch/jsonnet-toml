@@ -291,6 +291,7 @@ local doubleQuotedString =
   letter: letter,
   underscore: underscore,
   newline: newline,
+  toString: toString,
   whitespace: whitespace,
   whitespaceChar: whitespaceChar,
   doubleQuotedString: doubleQuotedString,

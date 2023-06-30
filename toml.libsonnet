@@ -12,8 +12,9 @@ local surroundedByWhitespace(decoder) =
 
 local keyPart =
   p.anyOf([
-    p.word,
     p.doubleQuotedString,
+    p.map(function(parts) std.join('-', parts), p.separatedBy(p.char('-'), p.word)),
+    p.word,
   ]);
 
 local key =

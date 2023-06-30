@@ -6,6 +6,7 @@ local input = |||
   biz = [1, "hello", 2, [ 3 ]]
   addr.street = "Main St"
   addr."city" = "Hometown"
+  billy-bong = 42
 
   [section]
   boo = 3

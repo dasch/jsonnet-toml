@@ -63,6 +63,14 @@ local eof(state) =
     local location = locatePosition(state);
     noMatch { errorMessage: 'unexpected character `%s` on %s' % [char, location], position: state.position };
 
+local inSet(set) = function(state)
+  local nextChar = peek(state);
+
+  if std.member(set, nextChar) then
+    match { value: nextChar, newState: advance(state, 1) }
+  else
+    noMatch { errorMessage: 'character `%s` not in set' % nextChar };
+
 local char(c) = function(state)
   local nextChar = peek(state);
   if nextChar == c then
@@ -230,18 +238,18 @@ local whitespaceChar =
 local whitespace =
   toString(oneOrMore(whitespaceChar));
 
-local intChars =
-  std.map(char, std.map(std.toString, std.range(0, 9)));
+local numeralList =
+  std.map(std.toString, std.range(0, 9));
 
 local numeral =
-  anyOf(intChars);
+  inSet(numeralList);
 
 local numerals = oneOrMore(numeral);
 
 local int =
   map(std.parseInt, toString(numerals));
 
-local letterChars =
+local letterList =
   local chars = [
     'a',
     'b',
@@ -271,10 +279,10 @@ local letterChars =
     'z',
   ];
 
-  std.map(char, chars + std.map(std.asciiUpper, chars));
+  chars + std.map(std.asciiUpper, chars);
 
 local letter =
-  anyOf(letterChars);
+  inSet(letterList);
 
 local underscore =
   char('_');
@@ -291,11 +299,8 @@ local singleQuote =
 local backslash =
   char('\\');
 
-local wordChars =
-  intChars + letterChars + [underscore];
-
 local wordChar =
-  anyOf(wordChars);
+  inSet(numeralList + letterList + ['_']);
 
 local word =
   toString(map2(concat, either(letter, underscore), zeroOrMore(wordChar)));

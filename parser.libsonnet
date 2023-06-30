@@ -122,10 +122,9 @@ local map2(f, decoder1, decoder2) =
   andThen(
     decoder1,
     function(value1)
-      andThen(
-        decoder2,
-        function(value2)
-          succeed(f(value1, value2))
+      map(
+        function(value2) f(value1, value2),
+        decoder2
       )
   );
 
@@ -133,14 +132,10 @@ local map3(f, decoder1, decoder2, decoder3) =
   andThen(
     decoder1,
     function(value1)
-      andThen(
+      map2(
+        function(value2, value3) f(value1, value2, value3),
         decoder2,
-        function(value2)
-          andThen(
-            decoder3,
-            function(value3)
-              succeed(f(value1, value2, value3))
-          )
+        decoder3
       )
   );
 
@@ -148,18 +143,11 @@ local map4(f, decoder1, decoder2, decoder3, decoder4) =
   andThen(
     decoder1,
     function(value1)
-      andThen(
+      map3(
+        function(value2, value3, value4) f(value1, value2, value3, value4),
         decoder2,
-        function(value2)
-          andThen(
-            decoder3,
-            function(value3)
-              andThen(
-                decoder4,
-                function(value4)
-                  succeed(f(value1, value2, value3, value4))
-              )
-          )
+        decoder3,
+        decoder4
       )
   );
 

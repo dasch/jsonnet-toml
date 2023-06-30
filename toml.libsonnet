@@ -26,13 +26,9 @@ local keyPart =
   ]);
 
 local key =
-  p.andThen(
+  p.failIf(
+    std.isEmpty,
     p.separatedBy(p.char('.'), surroundedByWhitespace(keyPart)),
-    function(keys)
-      if keys == [] then
-        p.fail
-      else
-        p.succeed(keys)
   );
 
 local dottedKeyToNestedObject(keys, value) =

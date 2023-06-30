@@ -118,6 +118,16 @@ local andThen(decoder, nextF) = function(state)
   else
     result;
 
+local failIf(predicate, decoder) =
+  andThen(
+    decoder,
+    function(value)
+      if predicate(value) then
+        fail
+      else
+        succeed(value)
+  );
+
 local map(f, decoder) = function(state)
   local result = run(decoder, state);
 
@@ -325,6 +335,7 @@ local string =
   parse: parse,
   succeed: succeed,
   fail: fail,
+  failIf: failIf,
   either: either,
   eof: eof,
   anyOf: anyOf,

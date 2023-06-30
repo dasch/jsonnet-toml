@@ -34,6 +34,23 @@ local x = parser.char('x');
       parser.parse(decoder)('hello7') == 'hello7',
   },
 
+  string: {
+    local decoder = parser.string,
+    local parse = parser.parse(decoder),
+
+    'it parses a single quoted string':
+      parse("'hello world'") == 'hello world',
+
+    'it escapes single quotes':
+      parse("'hello \\'world'") == "hello 'world",
+
+    'it parses a double quoted string':
+      parse('"hello world"') == 'hello world',
+
+    'it escapes double quotes':
+      parse('"hello \\"world"') == 'hello "world',
+  },
+
   succeed: {
     'it evaluates to the provided value':
       parser.parse(parser.succeed(42))('') == 42,

@@ -278,6 +278,9 @@ local doubleQuote =
 local singleQuote =
   char("'");
 
+local backslash =
+  char('\\');
+
 local wordChars =
   intChars + letterChars + [underscore];
 
@@ -288,18 +291,30 @@ local word =
   toString(map2(concat, either(letter, underscore), zeroOrMore(wordChar)));
 
 local doubleQuotedString =
+  local notEndOfString =
+    either(
+      map(function(_) '"', followedBy(backslash, doubleQuote)),
+      notChar('"')
+    );
+
   map3(
     function(_1, str, _2) str,
     doubleQuote,
-    toString(zeroOrMore(notChar('"'))),
+    map(function(chars) std.join('', chars), zeroOrMore(notEndOfString)),
     doubleQuote
   );
 
 local singleQuotedString =
+  local notEndOfString =
+    either(
+      map(function(_) "'", followedBy(backslash, singleQuote)),
+      notChar("'")
+    );
+
   map3(
     function(_1, str, _2) str,
     singleQuote,
-    toString(zeroOrMore(notChar("'"))),
+    map(function(chars) std.join('', chars), zeroOrMore(notEndOfString)),
     singleQuote
   );
 

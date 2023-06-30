@@ -3,6 +3,15 @@ local p = import './parser.libsonnet';
 local mergeObjects(objects) =
   std.foldl(std.mergePatch, objects, {});
 
+local comma =
+  p.char(',');
+
+local eq =
+  p.char('=');
+
+local dash =
+  p.char('-');
+
 local surroundedByWhitespace(decoder) =
   p.surroundedBy(
     p.optional(p.whitespace),
@@ -13,7 +22,7 @@ local surroundedByWhitespace(decoder) =
 local keyPart =
   p.anyOf([
     p.doubleQuotedString,
-    p.map(function(parts) std.join('-', parts), p.separatedBy(p.char('-'), p.word)),
+    p.map(function(parts) std.join('-', parts), p.separatedBy(dash, p.word)),
     p.word,
   ]);
 
@@ -39,7 +48,7 @@ local value =
   local array =
     p.surroundedBy(
       p.char('['),
-      p.separatedBy(p.char(','), value),
+      p.separatedBy(comma, value),
       p.char(']')
     );
 
@@ -47,14 +56,14 @@ local value =
     local keyValue = p.map3(
       function(keys, _, value) dottedKeyToNestedObject(keys, value),
       key,
-      p.char('='),
+      eq,
       value
     );
     p.map(
       mergeObjects,
       p.surroundedBy(
         p.char('{'),
-        p.separatedBy(p.char(','), keyValue),
+        p.separatedBy(comma, keyValue),
         p.char('}')
       )
     );
@@ -73,7 +82,7 @@ local assignment =
     function(keyStr, _1, valueStr, _2)
       dottedKeyToNestedObject(keyStr, valueStr),
     key,
-    surroundedByWhitespace(p.char('=')),
+    surroundedByWhitespace(eq),
     value,
     p.newline
   );

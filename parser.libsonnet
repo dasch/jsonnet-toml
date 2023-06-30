@@ -191,19 +191,22 @@ local surroundedBy(start, middle, end) =
     end
   );
 
-local separatedBy(separatorDecoder, elementDecoder) =
-  local restDecoder =
-    andThen(
-      separatorDecoder,
-      function(_)
-        separatedBy(separatorDecoder, elementDecoder)
-    );
+local separatedBy(separatorDecoder, elementDecoder) = function(state)
+  local helper(newState, elements) =
+    local result1 = run(elementDecoder, newState);
 
-  anyOf([
-    map2(concat, elementDecoder, restDecoder),
-    map(function(element) [element], elementDecoder),
-    succeed([]),
-  ]);
+    if didMatch(result1) then
+      local result2 = run(separatorDecoder, result1.newState);
+      local newElements = elements + [result1.value];
+
+      if didMatch(result2) then
+        helper(result2.newState, newElements)
+      else
+        match { value: newElements, newState: result1.newState }
+    else
+      match { value: elements, newState: newState };
+
+  helper(state, []);
 
 local toString(decoder) =
   map(function(value) std.join('', value), decoder);

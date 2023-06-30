@@ -130,6 +130,18 @@ local x = parser.char('x');
   },
 
   separatedBy: {
+    'matches zero elements':
+      local separator = parser.char(',');
+      local decoder = parser.separatedBy(separator, parser.int);
+      local value = parser.parse(decoder)('x');
+      value == [],
+
+    'matches one element':
+      local separator = parser.char(',');
+      local decoder = parser.separatedBy(separator, parser.int);
+      local value = parser.parse(decoder)('42');
+      value == [42],
+
     'matches zero or more elements separated by the separator':
       local separator = parser.char(',');
       local decoder = parser.separatedBy(separator, parser.int);

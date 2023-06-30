@@ -174,15 +174,7 @@ local seq(decoders) =
     map2(concat, decoders[0], seq(decoders[1:]));
 
 local followedBy(decoder1, ignoredDecoder) =
-  andThen(
-    decoder1,
-    function(value)
-      andThen(
-        ignoredDecoder,
-        function(_)
-          succeed(value)
-      )
-  );
+  map2(function(value, ignoredValue) value, decoder1, ignoredDecoder);
 
 local surroundedBy(start, middle, end) =
   map3(

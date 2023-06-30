@@ -11,7 +11,7 @@ local didMatch(result) = result.matched;
 local run(decoder, state) =
   decoder(state);
 
-local match = { matched: true };
+local match = { matched: true, value: error 'no value specified', newState: 'no new state specified' };
 
 local noMatch = { matched: false, errorMessage: 'did not match', position: 0 };
 
@@ -161,8 +161,15 @@ local map4(f, decoder1, decoder2, decoder3, decoder4) =
       )
   );
 
-local zeroOrMore(decoder) =
-  either(map2(concat, decoder, zeroOrMore(decoder)), succeed([]));
+local zeroOrMore(decoder) = function(state)
+  local step(newState, agg) =
+    local result = run(decoder, newState);
+    if didMatch(result) then
+      step(result.newState, agg + [result.value])
+    else
+      match { value: agg, newState: newState };
+
+  step(state, []);
 
 local oneOrMore(decoder) =
   map2(concat, decoder, zeroOrMore(decoder));

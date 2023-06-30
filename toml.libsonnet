@@ -68,9 +68,6 @@ local value =
     ])
   );
 
-local optionalNewline =
-  p.optional(p.newline);
-
 local assignment =
   p.map4(
     function(keyStr, _1, valueStr, _2)

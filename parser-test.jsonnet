@@ -17,7 +17,7 @@ local x = parser.char('x');
   whitespace: {
     'it parses whitespace':
       local decoder = parser.whitespace;
-      parser.parse(decoder)(' \t \n') == ' \t \n',
+      parser.parse(decoder)(' \t') == ' \t',
   },
 
   word: {

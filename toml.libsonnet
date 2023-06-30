@@ -46,9 +46,9 @@ local value =
   local inlineTable =
     local keyValue = p.map3(
       function(keys, _, value) dottedKeyToNestedObject(keys, value),
-      surroundedByWhitespace(key),
+      key,
       p.char('='),
-      surroundedByWhitespace(value)
+      value
     );
     p.map(
       mergeObjects,

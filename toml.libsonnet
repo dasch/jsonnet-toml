@@ -1,13 +1,7 @@
 local p = import './parser.libsonnet';
 
-local merge(a, b) =
-  a + b;
-
 local mergeObjects(objects) =
-  std.foldl(merge, objects, {});
-
-local key =
-  p.word;
+  std.foldl(std.mergePatch, objects, {});
 
 local surroundedByWhitespace(decoder) =
   p.surroundedBy(
@@ -15,6 +9,23 @@ local surroundedByWhitespace(decoder) =
     decoder,
     p.optional(p.whitespace),
   );
+
+local dottedKey =
+  p.separatedBy(p.char('.'), surroundedByWhitespace(p.word));
+
+local dottedKeyToNestedObject(keys, value) =
+  if keys == [] then
+    value
+  else
+    local key = keys[0];
+    local rest = keys[1:];
+    { [key]: dottedKeyToNestedObject(rest, value) };
+
+local key =
+  p.anyOf([
+    dottedKey,
+    p.word,
+  ]);
 
 local value =
   local array =
@@ -26,7 +37,7 @@ local value =
 
   local inlineTable =
     local keyValue = p.map3(
-      function(key, _, value) { [key]: value },
+      function(keys, _, value) dottedKeyToNestedObject(keys, value),
       surroundedByWhitespace(key),
       p.char('='),
       surroundedByWhitespace(value)
@@ -63,7 +74,12 @@ local assignment =
             p.andThen(
               value,
               function(valueStr)
-                p.succeed({ [keyStr]: valueStr })
+                p.succeed(
+                  if std.isArray(keyStr) then
+                    dottedKeyToNestedObject(keyStr, valueStr)
+                  else
+                    { [keyStr]: valueStr }
+                )
             )
         )
     ),
@@ -83,8 +99,8 @@ local header =
 
 local table =
   p.map2(
-    function(headerStr, data)
-      { [headerStr]: mergeObjects(data) },
+    function(keys, data)
+      dottedKeyToNestedObject(keys, mergeObjects(data)),
     header,
     p.zeroOrMore(assignment),
   );

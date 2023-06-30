@@ -21,7 +21,7 @@ local surroundedByWhitespace(decoder) =
 
 local keyPart =
   p.anyOf([
-    p.doubleQuotedString,
+    p.string,
     p.toString(p.separatedBy(dash, p.word)),
   ]);
 
@@ -70,7 +70,7 @@ local value =
   surroundedByWhitespace(
     p.anyOf([
       p.int,
-      p.doubleQuotedString,
+      p.string,
       array,
       inlineTable,
     ])

@@ -275,6 +275,9 @@ local newline =
 local doubleQuote =
   char('"');
 
+local singleQuote =
+  char("'");
+
 local wordChars =
   intChars + letterChars + [underscore];
 
@@ -291,6 +294,17 @@ local doubleQuotedString =
     toString(zeroOrMore(notChar('"'))),
     doubleQuote
   );
+
+local singleQuotedString =
+  map3(
+    function(_1, str, _2) str,
+    singleQuote,
+    toString(zeroOrMore(notChar("'"))),
+    singleQuote
+  );
+
+local string =
+  either(doubleQuotedString, singleQuotedString);
 
 {
   parse: parse,
@@ -320,6 +334,8 @@ local doubleQuotedString =
   whitespace: whitespace,
   whitespaceChar: whitespaceChar,
   doubleQuotedString: doubleQuotedString,
+  singleQuotedString: singleQuotedString,
+  string: string,
   numeral: numeral,
   int: int,
 }

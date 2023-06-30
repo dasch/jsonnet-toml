@@ -74,10 +74,7 @@ local optionalNewline =
 local assignment =
   p.map4(
     function(keyStr, _1, valueStr, _2)
-      if std.isArray(keyStr) then
-        dottedKeyToNestedObject(keyStr, valueStr)
-      else
-        { [keyStr]: valueStr },
+      dottedKeyToNestedObject(keyStr, valueStr),
     key,
     surroundedByWhitespace(p.char('=')),
     value,

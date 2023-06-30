@@ -1,5 +1,6 @@
 local State(input) = {
   input: input,
+  length: std.length(input),
   position: 0,
 };
 
@@ -12,7 +13,7 @@ local run(decoder, state) =
 
 local match = { matched: true };
 
-local noMatch = { matched: false };
+local noMatch = { matched: false, errorMessage: 'did not match' };
 
 local parse(decoder) = function(input)
   local state = State(input);
@@ -24,7 +25,7 @@ local parse(decoder) = function(input)
     else
       result.value
   else
-    error 'decoder did not match input';
+    error 'parsing failed: %s' % result.errorMessage;
 
 local peek(state, n=1) =
   local start = state.position;
@@ -33,7 +34,10 @@ local peek(state, n=1) =
   state.input[start:end];
 
 local advance(state, n=1) =
-  state { position: state.position + n };
+  local nextPos = state.position + n;
+  assert nextPos <= state.length :
+         'cannot advance to %d, input is only %d long' % [nextPos, state.length];
+  state { position: nextPos };
 
 local succeed(value) = function(state)
   match { newState: state, value: value };
@@ -41,18 +45,25 @@ local succeed(value) = function(state)
 local fail(state) =
   noMatch;
 
-local char(c) = function(state)
-  if peek(state) == c then
-    match { newState: advance(state, 1), value: c }
+local eof(state) =
+  if state.position == state.length then
+    match { newState: state, value: null }
   else
     noMatch;
+
+local char(c) = function(state)
+  local nextChar = peek(state);
+  if nextChar == c then
+    match { newState: advance(state, 1), value: c }
+  else
+    noMatch { errorMessage: 'expected `%s` but found `%s`' % [c, nextChar] };
 
 local notChar(c) = function(state)
   local nextChar = peek(state);
   if nextChar != c then
     match { newState: advance(state, 1), value: nextChar }
   else
-    noMatch;
+    noMatch { errorMessage: 'expected anything but `%s`, but found it' % [c, nextChar] };
 
 local either(decoder1, decoder2) = function(state)
   local result1 = run(decoder1, state);
@@ -165,7 +176,7 @@ local toString(decoder) =
   map(function(value) std.join('', value), decoder);
 
 local whitespaceChar =
-  anyOf(std.map(char, [' ', '\n', '\t', '\r']));
+  anyOf(std.map(char, [' ', '\t']));
 
 local whitespace =
   toString(oneOrMore(whitespaceChar));
@@ -247,6 +258,7 @@ local doubleQuotedString =
   succeed: succeed,
   fail: fail,
   either: either,
+  eof: eof,
   anyOf: anyOf,
   andThen: andThen,
   seq: seq,

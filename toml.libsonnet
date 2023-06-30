@@ -28,8 +28,8 @@ local value =
     local keyValue = p.map3(
       function(key, _, value) { [key]: value },
       surroundedByWhitespace(key),
-      surroundedByWhitespace(p.char('=')),
-      value
+      p.char('='),
+      surroundedByWhitespace(value)
     );
     p.map(
       mergeObjects,
@@ -67,7 +67,7 @@ local assignment =
             )
         )
     ),
-    optionalNewline
+    p.newline
   );
 
 local header =
@@ -78,27 +78,28 @@ local header =
       key,
       p.char(']'),
     ),
-    optionalNewline
+    p.newline
   );
 
 local table =
   p.map2(
-    function(headerStr, assignments) { [headerStr]: mergeObjects(assignments) },
+    function(headerStr, data)
+      { [headerStr]: mergeObjects(data) },
     header,
-    p.oneOrMore(assignment),
+    p.zeroOrMore(assignment),
   );
 
 local emptyline =
-  p.map(function(_) {}, p.newline);
+  p.map(function(_) {}, p.followedBy(p.optional(p.whitespace), p.newline));
 
 local expression =
-  p.anyOf([assignment, table, emptyline]);
+  p.anyOf([table, assignment, emptyline]);
 
 local expressions =
   p.map(mergeObjects, p.oneOrMore(expression));
 
 local toml =
-  expressions;
+  p.followedBy(expressions, p.eof);
 
 local parse =
   p.parse(toml);

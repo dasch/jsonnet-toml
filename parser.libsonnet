@@ -13,7 +13,10 @@ local run(decoder, state) =
 
 local match = { matched: true };
 
-local noMatch = { matched: false, errorMessage: 'did not match' };
+local noMatch = { matched: false, errorMessage: 'did not match', position: 0 };
+
+local pickError(a, b) =
+  if a.position >= b.position then a else b;
 
 local parse(decoder) = function(input)
   local state = State(input);
@@ -43,27 +46,27 @@ local succeed(value) = function(state)
   match { newState: state, value: value };
 
 local fail(state) =
-  noMatch;
+  noMatch { position: state.position };
 
 local eof(state) =
   if state.position == state.length then
     match { newState: state, value: null }
   else
-    noMatch;
+    noMatch { errorMessage: 'did not match end of input', position: state.position };
 
 local char(c) = function(state)
   local nextChar = peek(state);
   if nextChar == c then
     match { newState: advance(state, 1), value: c }
   else
-    noMatch { errorMessage: 'expected `%s` but found `%s`' % [c, nextChar] };
+    noMatch { errorMessage: 'expected `%s` but found `%s`' % [c, nextChar], position: state.position };
 
 local notChar(c) = function(state)
   local nextChar = peek(state);
   if nextChar != c then
     match { newState: advance(state, 1), value: nextChar }
   else
-    noMatch { errorMessage: 'expected anything but `%s`, but found it' % [c, nextChar] };
+    noMatch { errorMessage: 'expected anything but `%s`, but found it' % [c, nextChar], position: state.position };
 
 local either(decoder1, decoder2) = function(state)
   local result1 = run(decoder1, state);
@@ -71,7 +74,12 @@ local either(decoder1, decoder2) = function(state)
   if didMatch(result1) then
     result1
   else
-    run(decoder2, state);
+    local result2 = run(decoder2, state);
+
+    if didMatch(result2) then
+      result2
+    else
+      pickError(result1, result2);
 
 local optional(decoder) =
   either(decoder, succeed(null));
@@ -91,7 +99,7 @@ local andThen(decoder, nextF) = function(state)
     local nextDecoder = nextF(result.value);
     run(nextDecoder, result.newState)
   else
-    noMatch;
+    result;
 
 local map(f, decoder) = function(state)
   local result = run(decoder, state);
@@ -99,7 +107,7 @@ local map(f, decoder) = function(state)
   if didMatch(result) then
     result { value: f(result.value) }
   else
-    noMatch;
+    result;
 
 local map2(f, decoder1, decoder2) =
   andThen(

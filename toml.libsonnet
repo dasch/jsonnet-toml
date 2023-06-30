@@ -23,7 +23,6 @@ local keyPart =
   p.anyOf([
     p.doubleQuotedString,
     p.toString(p.separatedBy(dash, p.word)),
-    p.word,
   ]);
 
 local key =

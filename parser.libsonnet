@@ -40,6 +40,7 @@ local advance(state, n=1) =
   local nextPos = state.position + n;
   assert nextPos <= state.length :
          'cannot advance to %d, input is only %d long' % [nextPos, state.length];
+
   state { position: nextPos };
 
 local succeed(value) = function(state)

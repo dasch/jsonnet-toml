@@ -84,11 +84,18 @@ local either(decoder1, decoder2) = function(state)
 local optional(decoder) =
   either(decoder, succeed(null));
 
-local anyOf(decoders) =
+local anyOf(decoders) = function(state)
   if std.length(decoders) == 0 then
-    fail
+    noMatch
   else
-    either(decoders[0], anyOf(decoders[1:]));
+    // Doing this instead of recursion to avoid blowing the stack.
+    local results = std.map(function(decoder) run(decoder, state), decoders);
+    local matchingResults = std.filter(didMatch, results);
+
+    if matchingResults == [] then
+      noMatch { errorMessage: 'none of the decoders matched' }
+    else
+      matchingResults[0];
 
 // Runs the decoder and feeds the matched value to `nextF`, which needs
 // to itself evaluate to a decoder.

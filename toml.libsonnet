@@ -10,8 +10,21 @@ local surroundedByWhitespace(decoder) =
     p.optional(p.whitespace),
   );
 
-local dottedKey =
-  p.separatedBy(p.char('.'), surroundedByWhitespace(p.word));
+local keyPart =
+  p.anyOf([
+    p.word,
+    p.doubleQuotedString,
+  ]);
+
+local key =
+  p.andThen(
+    p.separatedBy(p.char('.'), surroundedByWhitespace(keyPart)),
+    function(keys)
+      if keys == [] then
+        p.fail
+      else
+        p.succeed(keys)
+  );
 
 local dottedKeyToNestedObject(keys, value) =
   if keys == [] then
@@ -20,12 +33,6 @@ local dottedKeyToNestedObject(keys, value) =
     local key = keys[0];
     local rest = keys[1:];
     { [key]: dottedKeyToNestedObject(rest, value) };
-
-local key =
-  p.anyOf([
-    dottedKey,
-    p.word,
-  ]);
 
 local value =
   local array =

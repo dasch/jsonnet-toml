@@ -5,7 +5,7 @@ local input = |||
   bar = "hello"
   biz = [1, "hello", 2, [ 3 ]]
   addr.street = "Main St"
-  addr.city = "Hometown"
+  addr."city" = "Hometown"
 
   [section]
   boo = 3
@@ -13,7 +13,7 @@ local input = |||
   name . middle = "Floe"
 
   [anothersection]
-  bam = "fizzle"
+  "one two three" = "fizzle"
   boo = 3
 |||;
 

@@ -72,25 +72,15 @@ local optionalNewline =
   p.optional(p.newline);
 
 local assignment =
-  p.followedBy(
-    p.andThen(
-      key,
-      function(keyStr)
-        p.andThen(
-          surroundedByWhitespace(p.char('=')),
-          function(_)
-            p.andThen(
-              value,
-              function(valueStr)
-                p.succeed(
-                  if std.isArray(keyStr) then
-                    dottedKeyToNestedObject(keyStr, valueStr)
-                  else
-                    { [keyStr]: valueStr }
-                )
-            )
-        )
-    ),
+  p.map4(
+    function(keyStr, _1, valueStr, _2)
+      if std.isArray(keyStr) then
+        dottedKeyToNestedObject(keyStr, valueStr)
+      else
+        { [keyStr]: valueStr },
+    key,
+    surroundedByWhitespace(p.char('=')),
+    value,
     p.newline
   );
 

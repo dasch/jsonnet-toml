@@ -142,6 +142,25 @@ local map3(f, decoder1, decoder2, decoder3) =
       )
   );
 
+local map4(f, decoder1, decoder2, decoder3, decoder4) =
+  andThen(
+    decoder1,
+    function(value1)
+      andThen(
+        decoder2,
+        function(value2)
+          andThen(
+            decoder3,
+            function(value3)
+              andThen(
+                decoder4,
+                function(value4)
+                  succeed(f(value1, value2, value3, value4))
+              )
+          )
+      )
+  );
+
 local zeroOrMore(decoder) =
   either(map2(concat, decoder, zeroOrMore(decoder)), succeed([]));
 
@@ -280,6 +299,7 @@ local doubleQuotedString =
   map: map,
   map2: map2,
   map3: map3,
+  map4: map4,
   followedBy: followedBy,
   separatedBy: separatedBy,
   surroundedBy: surroundedBy,
